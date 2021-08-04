@@ -250,21 +250,21 @@ export default {
         password: sha1(this.ruleForm.password),
         code: this.ruleForm.code,
       };
-      Login(requestData)
-        .then((response) => {
-          let data = response.data;
-          this.$message({
-            message: data.message,
-            type: "success",
-          });
-          this.clearCountDown();
-          this.$router.push({
-            name: "Console",
-          });
-        })
-        .catch((error) => {
-          console.log(error);
+      this.$store.dispatch('login', requestData)
+        .then((response) =>{
+        let data = response.data;
+        this.$message({
+          message: data.message,
+          type: "success",
         });
+        this.clearCountDown();
+        this.$router.push({
+          name: "Console",
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
     },
     /**
      * 注册

@@ -53,7 +53,7 @@ module.exports = {
       //   changeOrigin: true
       // },
       "/api": {
-        target: "http://www.web-jshtml.cn/productapi", // 你请求的第三方接口
+        target: "http://www.web-jshtml.cn/productapi/token", // 你请求的第三方接口
         changeOrigin: true, // 在本地会创建一个虚拟服务端，然后发送请求的数据，并同时接收请求的数据，这样服务端和服务端进行数据的交互就不会有跨域问题
         pathRewrite: {
           // 路径重写，
@@ -75,6 +75,7 @@ module.exports = {
     // 开发生产共同配置别名
     Object.assign(config.resolve, {
       alias: {
+        'vue': 'vue/dist/vue.js',
         "@": path.resolve(__dirname, "./src"),
         assets: path.resolve(__dirname, "./src/assets"),
         common: path.resolve(__dirname, "./src/common"),
@@ -88,6 +89,15 @@ module.exports = {
   },
   // 对内部的 webpack 配置（比如修改、增加Loader选项）(链式操作)
   chainWebpack: (config) => {
+    const svgRule = config.module.rule("svg");
+    svgRule.uses.clear();
+    svgRule
+        .use("svg-sprite-loader")
+        .loader("svg-sprite-loader")
+        .options({
+          symbolId: "icon-[name]",
+          include: ["./src/icons"]
+        });
     // if (IS_PROD) {
     //主要是对打包的文件生成配置，可以将某些引用的第三方插件单独打包出来
     config.optimization.splitChunks({
@@ -148,28 +158,24 @@ module.exports = {
     // }
   },
   // css的处理
-  // css: {
-  //   // 当为true时，css文件名可省略 module 默认为 false
-  //   modules: true,
-  //   // 是否将组件中的 CSS 提取至一个独立的 CSS 文件中
-  //   // 默认生产环境下是 true，开发环境下是 false
-  //   //是否使用css分离插件 ExtractTextPlugin 开启CSS分离之后每个组件的css会单独打包，造成页面上有大量请求，所以在正式环境中将CSS分离关闭
-  //   extract: process.env.NODE_ENV === "production",
-  //   // 是否为 CSS 开启 source map。设置为 true 之后可能会影响构建的性能
-  //   sourceMap: false,
-  //   // requireModuleExtension: false,// 启用 CSS modules for all css / pre-processor files.
-  //   //向 CSS 相关的 loader 传递选项(支持 css-loader postcss-loader sass-loader less-loader stylus-loader)
-  //   //css预设器配置项
-  //   loaderOptions: {
-  //     sass: {
-  //       prependData: '@import "./src/styles/main.scss";',
-  //     },
-  //     css: {},
-  //     less: {
-  //       javascriptEnabled: true,
-  //     },
-  //   },
-  // },
+  css: {
+    // 当为true时，css文件名可省略 module 默认为 false
+    requireModuleExtension: true,
+    // 是否将组件中的 CSS 提取至一个独立的 CSS 文件中
+    // 默认生产环境下是 true，开发环境下是 false
+    //是否使用css分离插件 ExtractTextPlugin 开启CSS分离之后每个组件的css会单独打包，造成页面上有大量请求，所以在正式环境中将CSS分离关闭
+    extract: process.env.NODE_ENV === "production",
+    // 是否为 CSS 开启 source map。设置为 true 之后可能会影响构建的性能
+    sourceMap: false,
+    // requireModuleExtension: false,// 启用 CSS modules for all css / pre-processor files.
+    //向 CSS 相关的 loader 传递选项(支持 css-loader postcss-loader sass-loader less-loader stylus-loader)
+    //css预设器配置项
+    loaderOptions: {
+      scss: {
+        prependData: '@import "./src/styles/main.scss";',
+      },
+    },
+  },
   // 是否为 Babel 或 TypeScript 使用 thread-loader 一般用不到
   parallel: require("os").cpus().length > 1,
   // 向 PWA 插件传递选项 一般用不到
